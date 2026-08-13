@@ -1,0 +1,24 @@
+{
+  "name": "dsh-plugin-ddg-search",
+  "version": "1.0.0",
+  "description": "Free DuckDuckGo-backed web_search provider for DeepSeek Harness (no API key)",
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "web-search",
+    "duckduckgo"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "README.md"
+  ],
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  }
+}

@@ -1,0 +1,38 @@
+# Linux: run the search shim as a per-user systemd service.
+#
+# Install:
+#   mkdir -p ~/.config/systemd/user
+#   sed "s|%REPO%|$PWD|g" dsh-ddg-shim.service > ~/.config/systemd/user/dsh-ddg-shim.service
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now dsh-ddg-shim
+#
+# Check:
+#   systemctl --user status dsh-ddg-shim
+#   curl http://127.0.0.1:8899/health
+#
+# `loginctl enable-linger $USER` keeps it running when you are not logged in.
+
+[Unit]
+Description=DuckDuckGo search shim for DeepSeek Harness
+Documentation=https://github.com/OWNER/DeepSeek-Harness-Web-Tools
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%REPO%
+ExecStart=%REPO%/venv/bin/python %REPO%/server.py --host 127.0.0.1 --port 8899
+Restart=on-failure
+RestartSec=5
+
+# It only needs loopback and outbound HTTPS; give it nothing else.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6
+
+[Install]
+WantedBy=default.target
