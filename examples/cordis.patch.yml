@@ -1,49 +1,43 @@
-# Example profile patch layer for DeepSeek Harness Web Tools.
+# Example profile patch layer for DeepSeek Harness Web Tools (dsh 0.2.0-rc.1+).
 #
-# Copy to:  $DSH_HOME/profiles/<profile>/cordis.patch.yml
-#           ($DSH_HOME defaults to ~/.dsh)
+# Add these rows to:  $DSH_HOME/profiles/<profile>/cordis.patch.yml
+#                     ($DSH_HOME defaults to ~/.dsh)
 #
-# Apply it to every profile you use -- `web` and `headless` are separate trees.
+# Do it for every profile you use -- `web` (browser UI), `desktop` (DeepSeek's
+# desktop app) and `headless` are separate trees, each with its own patch file
+# and its own node_modules.
 #
-# This file is YOURS: `npm i -g @deepseek-ai/dsh` replaces the shipped bundles
-# but never touches it. That is the whole point of putting the wiring here
-# instead of editing files inside the dsh install.
+# On 0.2 this file is ALL of your configuration (settings.yaml is gone), so
+# APPEND these rows to what is already there; do not replace the file.
+# `npm i -g @deepseek-ai/dsh` replaces the shipped bundles but never touches it.
 
 # ── web capability seam ─────────────────────────────────────────────────────
 #
 # A patch REPLACES the targeted row's whole `config` rather than merging into
 # it, so every field the seam needs is restated here -- including
-# `searchProvider`, which would otherwise be lost when setting `fetchProvider`.
+# `fetchProvider`, which would otherwise be lost when setting `searchProvider`.
 #
 #   search -> `ddg-shim`, the local DuckDuckGo shim. Free, no API key.
-#             The shipped default is `deepseek-official`, which bills against a
-#             DeepSeek cloud key and cannot be served by a local model: it
-#             speaks Anthropic `/messages` and relies on DeepSeek's
-#             SERVER-SIDE web_search tool.
-#   fetch  -> `http`. NOTE: DeepSeek ships fetch disabled on purpose --
-#             dsh-web-fetch-http has no SSRF protection and the model chooses
-#             the request target, so an agent can reach localhost, your LAN,
-#             and any VPN/tailnet host. Enable it deliberately.
+#             The shipped default is `deepseek-official`, which needs a
+#             DeepSeek API key (or DeepSeek-account sign-in) and cannot be
+#             served by a local model: it speaks Anthropic `/messages` and
+#             relies on DeepSeek's SERVER-SIDE web_search tool.
+#   fetch  -> `http`, the shipped value. 0.2's base bundle already installs
+#             and inserts @deepseek-ai/dsh-web-fetch-http, which only fetches
+#             public addresses. Nothing else to add for fetch.
 - id: web
   config:
     searchProvider: ddg-shim
     fetchProvider: http
 
 - insert:
-    # Plain HTTP fetch provider, published by DeepSeek.
+    # This repo's DuckDuckGo-backed search provider. Install it per profile:
     #
-    # Install it per-profile:
-    #   dsh plugin --profile web add @deepseek-ai/dsh-web-fetch-http
+    #   dsh plugin --profile web add link:/absolute/path/to/DeepSeek-Harness-Web-Tools/plugin
     #
     # Plugins resolve from the PROFILE directory. Putting it in the dsh
     # install's own node_modules instead makes EVERY profile crash on boot with
     # ERR_MODULE_NOT_FOUND -- including ones you never touched.
-    - id: web-fetch-http
-      name: '@deepseek-ai/dsh-web-fetch-http'
-
-    # This repo's DuckDuckGo-backed search provider.
-    #
-    #   dsh plugin --profile web add /absolute/path/to/DeepSeek-Harness-Web-Tools/plugin
     #
     # `baseURL` must match wherever the shim listens.
     - id: web-search-ddg
@@ -51,9 +45,6 @@
       config:
         baseURL: http://127.0.0.1:8899
 
-# Host-plane tool row. The per-preset copies are what the agent actually sees
-# (see step 4 in the README); this keeps the two planes agreeing.
-- id: tool-web
-  config:
-    fetch: true
-    searchTimeoutMs: 60000
+# No preset row is needed: 0.2's shipped `standard` preset already carries
+#   - id: tool-web  (fetch: true, searchTimeoutMs: 60000)
+# If you declare your own preset row, keep that tool-web row in it.
