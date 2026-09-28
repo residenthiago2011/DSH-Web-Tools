@@ -10,7 +10,8 @@
 **Free, keyless `web_search` for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`), backed by DuckDuckGo.**
 
 > **Requires dsh 0.2.0-rc.1 or newer.** Works in both 0.2 surfaces: the web UI
-> (profile `web`) and DeepSeek's desktop app (profile `desktop`).
+> (profile `web`) and DeepSeek's desktop app (profile `desktop`). The desktop
+> app has no public download yet; it is built from [DeepSeek's source](https://github.com/deepseek-ai/deepseek-harness).
 >
 > **Using dsh 0.1.x?** Use the [`dsh-0.1` tag](https://github.com/tonyd2wild/DeepSeek-Harness-Web-Tools/tree/dsh-0.1)
 > of this repo. Its instructions (`settings.yaml`, editing the installed
