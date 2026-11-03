@@ -25,16 +25,6 @@ const NAMED_ENTITIES = {
   quot: '"',
 }
 
-function isValidBaseUrl(value) {
-  if (typeof value !== 'string' || value.length === 0) return false
-  try {
-    const url = new URL(value)
-    return url.protocol === 'http:' || url.protocol === 'https:'
-  } catch {
-    return false
-  }
-}
-
 function normalizeEngine(value) {
   if (value === undefined || value === null) return 'auto'
   const engine = String(value).trim().toLowerCase()
@@ -320,10 +310,6 @@ export class DdgSearchProvider {
   id = PROVIDER_ID
 
   constructor(options = {}) {
-    if (options.baseURL !== undefined && !isValidBaseUrl(options.baseURL)) {
-      throw new Error('baseURL must be an http(s) URL')
-    }
-    this.baseURL = options.baseURL
     this.engine = normalizeEngine(options.engine)
     this.maxResults = normalizeMaxResults(options.maxResults)
     this.timeoutMs = normalizeTimeout(options.timeoutMs)
@@ -335,7 +321,6 @@ export class DdgSearchProvider {
   }
 
   available() {
-    if (this.baseURL !== undefined) return isValidBaseUrl(this.baseURL)
     return true
   }
 
@@ -343,64 +328,7 @@ export class DdgSearchProvider {
     const query = typeof request?.query === 'string' ? request.query.trim() : ''
     if (!query) throw new Error('query is required')
     const maxResults = normalizeMaxResults(request?.maxResults ?? this.maxResults)
-    if (this.baseURL !== undefined) return this.searchShim(query, maxResults, signal)
     return this.searchDirect(query, maxResults, signal)
-  }
-
-  async searchShim(query, maxResults, signal) {
-    let response
-    try {
-      response = await this.fetchImpl(`${this.baseURL}/search`, {
-        method: 'POST',
-        redirect: 'error',
-        headers: {
-          accept: 'application/json',
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify({
-          query,
-          type: 'auto',
-          contents: { highlights: { highlightsPerUrl: 1 } },
-          numResults: maxResults,
-        }),
-        signal: mergeSignals(signal, this.timeoutMs),
-      })
-    } catch (error) {
-      if (isAbortError(error)) throw new Error('DuckDuckGo search aborted')
-      if (error?.name === 'TimeoutError') throw new Error('DuckDuckGo shim request timed out')
-      throw new Error(
-        `DuckDuckGo shim unreachable at ${this.baseURL} (${String(error)}). `
-        + 'Is the shim running? See shim/README.md.',
-      )
-    }
-
-    if (!response.ok) {
-      let detail = `HTTP ${response.status}`
-      try {
-        const parsed = await response.json()
-        if (typeof parsed?.error === 'string' && parsed.error.length > 0) detail = parsed.error
-      } catch {
-        detail = `HTTP ${response.status}`
-      }
-      throw new Error(`DuckDuckGo shim error: ${detail}`)
-    }
-
-    let payload
-    try {
-      payload = await response.json()
-    } catch (error) {
-      throw new Error(`DuckDuckGo shim returned an unprocessable body: ${String(error)}`)
-    }
-
-    const sources = []
-    for (const result of payload?.results ?? []) {
-      if (typeof result?.url !== 'string' || result.url.length === 0) continue
-      const snippet = (result.highlights ?? []).find(highlight => (
-        typeof highlight === 'string' && highlight.trim().length > 0
-      ))
-      sources.push(makeSource({ url: result.url, title: result.title, snippet }))
-    }
-    return { sources: dedupeSources(sources, maxResults), truncated: false }
   }
 
   async searchDirect(query, maxResults, signal) {

@@ -18,8 +18,8 @@
 # `fetchProvider`, which would otherwise be lost when setting `searchProvider`.
 #
 #   search -> `ddg-shim`, this repo's provider. The ID is historical; the
-#             provider now queries DuckDuckGo and Bing directly from the dsh
-#             process, with no API key and no Python shim.
+#             provider queries DuckDuckGo and Bing directly from the dsh
+#             process, with no API key and no extra service.
 #   fetch  -> `http`, the shipped value. 0.2's base bundle already installs
 #             and inserts @deepseek-ai/dsh-web-fetch-http, which only fetches
 #             public addresses. Nothing else to add for fetch.
@@ -39,9 +39,6 @@
     #
     # Package history: first published as "dsh-plugin-ddg-search"; since
     # 2026-11 the package is "dsh-web-tools" (row id unchanged).
-    #
-    # No `baseURL` is needed. Set `baseURL: http://127.0.0.1:8899` only to use
-    # the optional legacy Python shim in `shim/`.
     - id: web-search-ddg
       name: 'dsh-web-tools'
       config:

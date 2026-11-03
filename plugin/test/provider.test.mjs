@@ -150,42 +150,6 @@ test('keeps a sparse match when a long query token is present', () => {
   assert.deepEqual(sources.map(source => source.url), ['https://deepseek.com/harness'])
 })
 
-test('keeps the legacy shim contract when baseURL is set', async () => {
-  let request
-  const provider = new DdgSearchProvider({
-    baseURL: 'http://127.0.0.1:8899',
-    fetch: async (url, init) => {
-      request = { url: String(url), body: JSON.parse(init.body) }
-      return {
-        ok: true,
-        status: 200,
-        json: async () => ({
-          results: [
-            {
-              url: 'https://example.com/shim',
-              title: 'Shim result',
-              highlights: ['Shim snippet.'],
-            },
-          ],
-        }),
-      }
-    },
-  })
-
-  const result = await provider.search({ query: 'legacy', maxResults: 5 })
-
-  assert.equal(provider.available(), true)
-  assert.equal(request.url, 'http://127.0.0.1:8899/search')
-  assert.equal(request.body.numResults, 5)
-  assert.deepEqual(request.body.contents, { highlights: { highlightsPerUrl: 1 } })
-  assert.equal(result.sources[0].url, 'https://example.com/shim')
-  assert.equal(result.sources[0].snippet, 'Shim snippet.')
-})
-
-test('rejects an invalid shim baseURL', () => {
-  assert.throws(() => new DdgSearchProvider({ baseURL: 'not-a-url' }), /baseURL/)
-})
-
 test('direct mode is available without a network probe', () => {
   const provider = new DdgSearchProvider({ fetch: async () => { throw new Error('unexpected') } })
   assert.equal(provider.available(), true)
