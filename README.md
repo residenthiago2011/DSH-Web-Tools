@@ -1,4 +1,4 @@
-# DeepSeek Harness Web Tools
+# DeepSeek Harness - Web Tools
 
 **Free, keyless `web_search` for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`).**
 
