@@ -1,11 +1,5 @@
 # DeepSeek Harness Web Tools
 
-> **Unofficial community project.** Not affiliated with, endorsed by, or
-> maintained by DeepSeek AI. This is a third-party add-on for their open-source
-> harness. For the official project see
-> [deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness).
-> Please do not report issues with this repo to DeepSeek.
-
 **Free, keyless `web_search` for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`).**
 
 > **Requires dsh 0.2.0-rc.1 or newer.** Works in both 0.2 surfaces: the web UI
@@ -68,7 +62,7 @@ in your patch and is kept so existing patches keep working.
 ## Plugin panel (0.2.1-rc.3+)
 
 > **2.0.0** is the rename release — the package is `dsh-web-tools`
-> (previously `dsh-plugin-ddg-search` 1.1.0). Update profile manifests
+> (previously `dsh-plugin-ddg-search`[`dsh-0.1`](https://github.com/tonyd2wild/DeepSeek-Harness-Web-Tools/tree/dsh-0.1)). Update profile manifests
 > accordingly: the dependency key, `dsh.profile.bundles` entry and the
 > bundle row's `name:`; the loader row id stays `web-search-ddg`.
 
@@ -91,9 +85,7 @@ use. `web` is the browser UI, `desktop` is DeepSeek's desktop app, `headless` is
 one-shot `dsh headless "task"` runs:
 
 ```sh
-dsh plugin --profile web     add link:/absolute/path/to/DSH-Web-Tools/plugin
-dsh plugin --profile desktop add link:/absolute/path/to/DSH-Web-Tools/plugin
-dsh plugin --profile headless add link:/absolute/path/to/DSH-Web-Tools/plugin
+dsh plugin --profile <profile> add link:/absolute/path/to/DSH-Web-Tools/plugin
 ```
 
 ### 2. Wire it up in `cordis.patch.yml`
