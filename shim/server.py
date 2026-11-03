@@ -1,4 +1,7 @@
-"""Exa-shaped web search shim backed by DuckDuckGo.
+"""Optional legacy Exa-shaped web search shim backed by DuckDuckGo.
+
+The JavaScript plugin in this repo now searches directly and no longer needs
+this shim. Existing configurations can still set `baseURL` to keep using it.
 
 dsh's `@deepseek-ai/dsh-web-search-exa` provider talks a small, stable HTTP
 contract and lets you point it anywhere via `baseURL`. This server speaks that

@@ -1,5 +1,9 @@
 # Search shim
 
+**Optional legacy mode.** The plugin now queries DuckDuckGo and Bing directly
+from the `dsh` process. This shim is retained for older configurations that set
+`baseURL: http://127.0.0.1:8899` and for users who prefer a separate process.
+
 A small local HTTP service that answers `dsh`-side search requests from
 DuckDuckGo. No API key, no account, no per-query cost.
 
