@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Web 工具",
+    "description": "免密钥的 web_search 提供者，优先 DuckDuckGo，失败时回退 Bing。"
+  }
+}

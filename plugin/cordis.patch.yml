@@ -1,0 +1,22 @@
+# Bundle patch for the plugin panel / plugin manager.
+# Declared in package.json as dsh.bundle.patch. When this package is installed
+# as a profile dependency and selected in the profile manifest:
+#   { "dsh": { "profile": { "bundles": ["dsh-web-tools"] } } }
+# the plugin manager composes this row on startup and lists the package under
+# its "Personal" group (display name from locale/meta: "Web Tools").
+#
+# Package history: previously published as "dsh-plugin-ddg-search". The
+# rename to "dsh-web-tools" (2026-11) reflects the display name; the internal
+# search-provider id stays "ddg-shim" and the row id stays "web-search-ddg"
+# so existing installs and config ledgers keep working.
+#
+# Keep the row id stable ("web-search-ddg"). Do NOT also add this row to the
+# profile's own cordis.patch.yml (see examples/cordis.patch.yml) -- duplicate
+# ids across layers conflict.
+- insert:
+    - id: web-search-ddg
+      name: 'dsh-plugin-ddg-search'
+      config:
+        engine: auto
+        maxResults: 8
+        timeoutMs: 12000

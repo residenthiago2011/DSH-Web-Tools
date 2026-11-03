@@ -1,13 +1,12 @@
 # DeepSeek Harness Web Tools
 
-> ### ⚠️ Unofficial community project
->
-> **Not affiliated with, endorsed by, or maintained by DeepSeek AI.** This is a
-> third-party add-on for their open-source harness. For the official project see
+> **Unofficial community project.** Not affiliated with, endorsed by, or
+> maintained by DeepSeek AI. This is a third-party add-on for their open-source
+> harness. For the official project see
 > [deepseek-ai/deepseek-harness](https://github.com/deepseek-ai/deepseek-harness).
 > Please do not report issues with this repo to DeepSeek.
 
-**Free, keyless `web_search` for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`), backed by DuckDuckGo.**
+**Free, keyless `web_search` for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`).**
 
 > **Requires dsh 0.2.0-rc.1 or newer.** Works in both 0.2 surfaces: the web UI
 > (profile `web`) and DeepSeek's desktop app (profile `desktop`). The desktop
@@ -20,112 +19,89 @@
 Every search provider `dsh` 0.2 ships needs an account: DeepSeek's own search
 (a DeepSeek API key, or a DeepSeek-account sign-in), Exa, or Perplexity (their
 API keys). If you run `dsh` against a local model you may want none of that.
-This repo is the keyless option:
+This repo is the keyless option.
 
-- **`web_search`**: a local shim backed by DuckDuckGo, plus a `dsh` plugin that
-  registers it with the `ctx.web` seam as the provider `ddg-shim`.
-- **`web_fetch`**: nothing to install on 0.2. DeepSeek now ships
-  `@deepseek-ai/dsh-web-fetch-http` in the base bundle with fetch switched on
-  (see [Security](#security) for what changed).
+## How it works
+
+The plugin runs inside the `dsh` process and queries search engines directly.
+It tries DuckDuckGo first, then Bing when DuckDuckGo is blocked, rate-limited,
+or returns no results:
+
+1. DuckDuckGo HTML
+2. DuckDuckGo Lite
+3. Bing RSS and Bing HTML, with and without market hints
+
+Bing's fallback feed can return unrelated trending pages when it has no real
+matches. The plugin scores every candidate against the query terms and discards
+results that do not match. If no engine returns anything relevant, the search
+fails with an explicit `no relevant results` error instead of returning
+unrelated links.
+
+There is no API key, no account, no Python dependency, and no separate service
+in the default setup. Search traffic goes from the `dsh` process to fixed
+DuckDuckGo and Bing endpoints over HTTPS.
+
+`web_fetch` needs nothing from this repo. DeepSeek ships
+`@deepseek-ai/dsh-web-fetch-http` in the 0.2 base bundle with fetch enabled (see
+[Security](#security) for what changed).
 
 Everything here is upgrade-safe: it lives in your profile patch layer
 (`cordis.patch.yml`) and `$DSH_HOME`, not in shipped package files.
 
----
-
-## Why a key is normally required
-
-Worth understanding before you install, because it explains why "just point it
-at my local model" cannot work.
-
-The default search provider, `deepseek-official`, is pinned via the `web` row's
-`searchProvider`. That provider:
-
-1. speaks the **Anthropic Messages** protocol (`POST /messages`), not OpenAI
-   `/v1/chat/completions`; and
-2. relies on DeepSeek's **server-side** `web_search` tool: the searching happens
-   in DeepSeek's cloud.
-
-So a local OpenAI-compatible server (vLLM, llama.cpp, Ollama) cannot serve it,
-on either count. **Web search needs a search index**, and a language model does
-not have one. The Exa and Perplexity providers solve that with a paid index.
-This repo supplies one for free by querying DuckDuckGo locally.
-
----
-
 ## What's in here
 
-```
-plugin/    a dsh plugin registering a DuckDuckGo-backed WebSearchProvider
-shim/      a small local HTTP service that queries DuckDuckGo
+```text
+plugin/    the dsh plugin registering a DDG/Bing-backed WebSearchProvider
+shim/      optional legacy Python shim, retained for older configs
 examples/  a cordis.patch.yml showing the wiring
 ```
 
-The shim is a separate process rather than code inside the plugin because the
-DuckDuckGo client with the best maintenance story is Python (`ddgs`), and `dsh`
-plugins are JavaScript. The plugin talks to it over loopback HTTP.
-
----
+The plugin keeps the provider ID `ddg-shim` so existing patches continue to
+work, but the shim is no longer required. Set `baseURL` in the plugin config
+only if you deliberately want to use the legacy Python shim.
 
 ## Requirements
 
 - `dsh` **0.2.0-rc.1+**. At the time of writing npm's `latest` tag still points
   at 0.1.x, so install the 0.2 line explicitly: `npm i -g @deepseek-ai/dsh@next`
 - **Node** `^22.19.0 || >=24.0.0`
-- **Python** 3.9+
 - **pnpm**: `dsh plugin` shells out to it (`npm i -g pnpm`)
+- **Python** 3.9+ only if you use the optional legacy shim
 
----
+## Plugin panel (0.2.1-rc.3+)
+
+On dsh 0.2.1-rc.3+ the plugin is a **bundle** (`dsh.bundle.patch` in its
+`package.json`), so the Plugins panel lists it under **Personal** as
+**"Web Tools"** (zh: Web 工具; display name from `plugin/locale/en|zh.json`,
+`meta.title`) with the standard enable/disable toggle — enabled it writes
+`"dsh-web-tools"` into the profile manifest's
+`dsh.profile.bundles`. In that flow the `- insert: id: web-search-ddg` row
+comes from the bundle's own `cordis.patch.yml`; do **not** also copy that row
+into the profile patch (duplicate ids conflict). The `- id: web` row from
+step 2 is still yours to keep — it belongs to the web seam, not this package.
 
 ## Install
 
-### 1. The search shim
-
-```sh
-cd shim
-python -m venv venv
-
-# Windows
-venv\Scripts\python.exe -m pip install -r requirements.txt
-venv\Scripts\python.exe server.py
-
-# macOS / Linux
-venv/bin/python -m pip install -r requirements.txt
-venv/bin/python server.py
-```
-
-It listens on `127.0.0.1:8899`. Check it:
-
-```sh
-curl http://127.0.0.1:8899/health
-# {"status": "ok", "backend": "duckduckgo"}
-```
-
-To keep it running, see [shim/README.md](shim/README.md) for a Windows
-Startup-folder launcher and a Linux systemd unit.
-
-### 2. The plugin, per profile
+### 1. The plugin, per profile
 
 Plugins resolve from the **profile** directory, so install into each profile you
-use (see Gotchas). `web` is the browser UI, `desktop` is DeepSeek's desktop app,
-`headless` is one-shot `dsh headless "task"` runs:
+use. `web` is the browser UI, `desktop` is DeepSeek's desktop app, `headless` is
+one-shot `dsh headless "task"` runs:
 
 ```sh
-dsh plugin --profile web     add link:/absolute/path/to/DeepSeek-Harness-Web-Tools/plugin
-dsh plugin --profile desktop add link:/absolute/path/to/DeepSeek-Harness-Web-Tools/plugin
-dsh plugin --profile headless add link:/absolute/path/to/DeepSeek-Harness-Web-Tools/plugin
+dsh plugin --profile web     add link:/absolute/path/to/DSH-Web-Tools/plugin
+dsh plugin --profile desktop add link:/absolute/path/to/DSH-Web-Tools/plugin
+dsh plugin --profile headless add link:/absolute/path/to/DSH-Web-Tools/plugin
 ```
 
-### 3. Wire it up in `cordis.patch.yml`
+### 2. Wire it up in `cordis.patch.yml`
 
 On 0.2 all configuration lives in `$DSH_HOME/profiles/<profile>/cordis.patch.yml`
 (default `$DSH_HOME` is `~/.dsh`); `settings.yaml` is gone. Add these rows to
-the file of every profile from step 2 (full commented copy:
+the file of every profile from step 1 (full commented copy:
 [examples/cordis.patch.yml](examples/cordis.patch.yml)):
 
 ```yaml
-# Point the web seam at the DuckDuckGo shim. A patch REPLACES the row's whole
-# config, so fetchProvider is restated even though it is the shipped value.
 - id: web
   config:
     searchProvider: ddg-shim
@@ -133,22 +109,45 @@ the file of every profile from step 2 (full commented copy:
 
 - insert:
     - id: web-search-ddg
-      name: 'dsh-plugin-ddg-search'
+      name: 'dsh-web-tools'
       config:
-        baseURL: http://127.0.0.1:8899
+        engine: auto
+        maxResults: 8
+        timeoutMs: 12000
 ```
+
+A patch replaces the `web` row's whole config, so `fetchProvider` is restated
+even though it is the shipped value. No `baseURL` is needed for direct search.
 
 No agent-preset change is needed: 0.2's shipped `standard` preset already
 exposes both `web_search` and `web_fetch` to the model. If you use a custom
 preset row, keep its `tool-web` row.
 
-### 4. Restart
+### 3. Restart
 
 - **Web UI:** stop `dsh web` and start it again.
 - **Desktop app:** quit it fully and reopen it.
 
 Then start a **new session**; a session that was already open keeps its old
 tool catalog.
+
+### Upgrading from 1.0 or the Python-shim setup
+
+The provider ID is unchanged. Existing patches that include:
+
+```yaml
+config:
+  baseURL: http://127.0.0.1:8899
+```
+
+remain in legacy shim mode and still require the Python shim. To switch to the
+new direct mode:
+
+1. Remove `baseURL` from the `web-search-ddg` config.
+2. Stop and disable the Python shim if you no longer need it.
+3. Restart `dsh` and open a new session.
+
+You can also delete `engine`, `maxResults`, and `timeoutMs`; they have defaults.
 
 ### Upgrading from a 0.1 install
 
@@ -164,8 +163,6 @@ tool catalog.
 - If you ran `dsh` 0.1 with a `settings.yaml`, the 0.2 upgrade migrated it into
   `profiles/web/cordis.patch.yml`. Check that your `web` row survived.
 
----
-
 ## Verify
 
 ```sh
@@ -180,29 +177,47 @@ dsh headless "web_fetch https://example.com and quote its H1"
 In the web UI or desktop app, ask for something current in a new session and
 watch for a `web_search` call in the transcript.
 
----
-
 ## Configuration
 
-The plugin takes one option:
+The plugin takes these options:
 
 ```yaml
 - id: web-search-ddg
-  name: 'dsh-plugin-ddg-search'
+  name: 'dsh-web-tools'
+  config:
+    engine: auto
+    maxResults: 8
+    timeoutMs: 12000
+```
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `engine` | `auto` | `auto`, `duckduckgo`, or `bing`. `auto` tries DuckDuckGo then Bing. |
+| `maxResults` | `8` | Maximum results per search, capped at `25`. |
+| `timeoutMs` | `12000` | Per-request timeout, capped at `60000`. |
+| `userAgent` | Chrome desktop | Override the HTTP user agent. |
+| `baseURL` | unset | Optional legacy mode: use the Python shim at this URL instead of direct search. |
+
+`maxResults` is also bounded by `dsh`'s web seam. The provider returns sources
+in the seam's `{url, title?, snippet?, publishedAt?}` shape.
+
+## Legacy shim mode
+
+The `shim/` directory is retained for existing installations and for users who
+prefer a separate Python process. It is not used in the default setup.
+
+To use it, install the shim as described in [shim/README.md](shim/README.md),
+then set:
+
+```yaml
+- id: web-search-ddg
+  name: 'dsh-web-tools'
   config:
     baseURL: http://127.0.0.1:8899
 ```
 
-The shim takes `--host`, `--port`, and `--verbose`.
-
-### Using SearXNG instead
-
-DuckDuckGo rate-limits under heavy use. If you already run
-[SearXNG](https://github.com/searxng/searxng), point the shim's backend at it:
-`search()` in `shim/server.py` is the only function to change. Its contract is
-`(query, num_results) -> [{url, title?, highlights: [snippet]}]`.
-
----
+In shim mode the plugin sends the Exa-shaped HTTP request the shim expects and
+does not query DuckDuckGo or Bing directly. The shim is still DuckDuckGo-only.
 
 ## Gotchas
 
@@ -221,19 +236,27 @@ nothing for the other.
 every field you want to keep, including `fetchProvider` when you set
 `searchProvider`.
 
-**The old `@deepseek-ai/dsh-web-search-exa@0.0.1-rc.1` was broken** (it imported
-a package that was never published). That is why this repo ships its own
-provider. 0.2's Exa and Perplexity providers are the official, keyed
-alternatives.
+**New sessions only.** An already-open session keeps its old tool catalog. Start
+a new session after changing the profile.
+
+**DuckDuckGo rate-limits under sustained load.** `engine: auto` falls back to
+Bing. If both are blocked on your network, use a self-hosted SearXNG front end
+(through the legacy shim) or one of the official keyed providers.
 
 **Keyless upstreams still need `apiKeyEnv`.** Unrelated to this repo but adjacent:
 if you configure a local model route in the `llm-pi-ai` row and omit
 `apiKeyEnv`, pi-ai falls back to ambient discovery, finds nothing, and fails with
 `PI_AI_ERROR: No API key`. Point it at any env var holding a placeholder.
 
----
-
 ## Security
+
+**Search results are untrusted input.** Treat titles, snippets, and fetched pages
+as data, not instructions. A malicious result can contain prompt-injection text.
+Do not run unattended agents with broad tool access unless you accept that risk.
+
+**Direct search sends queries to DuckDuckGo and Bing.** The default provider
+contacts only fixed search endpoints; it does not fetch arbitrary URLs. It does
+send your query text to those services, so do not search for secrets.
 
 **`web_fetch` is on by default in 0.2, and its provider changed.** The 0.1-era
 `@deepseek-ai/dsh-web-fetch-http` had no SSRF protection, which is why DeepSeek
@@ -244,10 +267,18 @@ the connection to the validated addresses, and blocks cross-origin redirects.
 It still cannot stop a model from sending data *to* a public URL, so think
 twice before running an unattended agent with fetch on.
 
-**The shim has no authentication.** It binds `127.0.0.1` by default. Do not
-expose it on `0.0.0.0` without putting authentication in front of it.
+**The legacy shim has no authentication.** It binds `127.0.0.1` by default. Do
+not expose it on `0.0.0.0` without putting authentication in front of it.
 
----
+## Development
+
+```sh
+cd plugin
+npm test
+```
+
+The tests use Node's built-in test runner and mock `fetch`; they do not hit the
+network. CI runs them on Node 22 and 24.
 
 ## License
 

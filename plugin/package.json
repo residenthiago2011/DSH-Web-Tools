@@ -1,24 +1,40 @@
 {
-  "name": "dsh-plugin-ddg-search",
-  "version": "1.0.0",
-  "description": "Free DuckDuckGo-backed web_search provider for DeepSeek Harness (no API key)",
+  "name": "dsh-web-tools",
+  "version": "1.1.0",
+  "description": "Free keyless web_search provider for DeepSeek Harness with DuckDuckGo and Bing fallback",
   "keywords": [
     "dsh-plugin",
     "deepseek-harness",
     "web-search",
-    "duckduckgo"
+    "duckduckgo",
+    "bing"
   ],
   "license": "MIT",
   "type": "module",
   "main": "index.js",
   "exports": {
-    ".": "./index.js"
+    ".": "./index.js",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json",
+    "./icon.svg": "./icon.svg"
   },
   "files": [
     "index.js",
-    "README.md"
+    "README.md",
+    "cordis.patch.yml",
+    "icon.svg",
+    "locale/en.json",
+    "locale/zh.json"
   ],
+  "scripts": {
+    "test": "node --test"
+  },
   "engines": {
     "node": "^22.19.0 || >=24.0.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
   }
 }
