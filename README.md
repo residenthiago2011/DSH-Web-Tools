@@ -70,6 +70,11 @@ only if you deliberately want to use the legacy Python shim.
 
 ## Plugin panel (0.2.1-rc.3+)
 
+> **2.0.0** is the rename release — the package is `dsh-web-tools`
+> (previously `dsh-plugin-ddg-search` 1.1.0). Update profile manifests
+> accordingly: the dependency key, `dsh.profile.bundles` entry and the
+> bundle row's `name:`; the loader row id stays `web-search-ddg`.
+
 On dsh 0.2.1-rc.3+ the plugin is a **bundle** (`dsh.bundle.patch` in its
 `package.json`), so the Plugins panel lists it under **Personal** as
 **"Web Tools"** (zh: Web 工具; display name from `plugin/locale/en|zh.json`,
