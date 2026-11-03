@@ -13,7 +13,8 @@
 > app has no public download yet; it is built from [DeepSeek's source](https://github.com/deepseek-ai/deepseek-harness).
 >
 > **Using dsh 0.1.x?** Use the [`dsh-0.1` tag](https://github.com/tonyd2wild/DeepSeek-Harness-Web-Tools/tree/dsh-0.1)
-> of this repo. Its instructions (`settings.yaml`, editing the installed
+> of the original repo this project builds on (see
+> [Credits](#credits)). Its instructions (`settings.yaml`, editing the installed
 > `standard` preset) are for 0.1.0-rc.6 and do not apply to 0.2.
 
 Every search provider `dsh` 0.2 ships needs an account: DeepSeek's own search
@@ -284,6 +285,17 @@ npm test
 
 The tests use Node's built-in test runner and mock `fetch`; they do not hit the
 network. CI runs them on Node 22 and 24.
+
+## Credits
+
+The `web_search` idea — and the original implementation of a free, keyless
+search plugin for DeepSeek Harness, including the first 0.1-era setup and the
+early 0.2 portable provider — comes from
+**[tonyd2wild/DeepSeek-Harness-Web-Tools](https://github.com/tonyd2wild/DeepSeek-Harness-Web-Tools)**.
+That is the primary work on this concept; this repo's direct-fetch rewrite
+(DuckDuckGo HTML/Lite with Bing fallback and relevance scoring), bundle
+metadata, and tooling builds on top of it and would not exist without it.
+The optional Python shim also originates there.
 
 ## License
 
