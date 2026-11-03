@@ -38,9 +38,9 @@
     # ERR_MODULE_NOT_FOUND -- including ones you never touched.
     #
     # Package history: first published as "dsh-plugin-ddg-search"; since
-    # 2026-11 the package is "dsh-web-tools" (row id unchanged).
+    # 2026-11 the package is "@residenthiago/dsh-web-tools" (row id unchanged).
     - id: web-search-ddg
-      name: 'dsh-web-tools'
+      name: '@residenthiago/dsh-web-tools'
       config:
         engine: auto
         maxResults: 8
@@ -51,7 +51,7 @@
 # (dsh.bundle.patch → its own cordis.patch.yml), so the Plugins panel can
 # manage it: pick it up under "Personal" ("Web Tools") and toggle it there.
 # If the bundle is selected in profiles/web/package.json
-# ({ "dsh": { "profile": { "bundles": ["dsh-web-tools"] } } }),
+# ({ "dsh": { "profile": { "bundles": ["@residenthiago/dsh-web-tools"] } } }),
 # SKIP the `- insert:` block above -- the rows would conflict by id.
 
 # No preset row is needed: 0.2's shipped `standard` preset already carries

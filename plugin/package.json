@@ -1,5 +1,5 @@
 {
-  "name": "dsh-web-tools",
+  "name": "@residenthiago/dsh-web-tools",
   "version": "2.0.0",
   "description": "Free keyless web_search provider for DeepSeek Harness with DuckDuckGo and Bing fallback",
   "keywords": [
@@ -10,6 +10,15 @@
     "bing"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/residenthiago2011/DSH-Web-Tools.git",
+    "directory": "plugin"
+  },
+  "homepage": "https://github.com/residenthiago2011/DSH-Web-Tools/tree/main/plugin#readme",
+  "bugs": {
+    "url": "https://github.com/residenthiago2011/DSH-Web-Tools/issues"
+  },
   "type": "module",
   "main": "index.js",
   "exports": {
@@ -21,6 +30,7 @@
   "files": [
     "index.js",
     "README.md",
+    "LICENSE",
     "cordis.patch.yml",
     "icon.svg",
     "locale/en.json",
@@ -31,6 +41,9 @@
   },
   "engines": {
     "node": "^22.19.0 || >=24.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dsh": {
     "bundle": {

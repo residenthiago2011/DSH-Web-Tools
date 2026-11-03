@@ -1,4 +1,4 @@
-# dsh-web-tools
+# @residenthiago/dsh-web-tools
 
 Keyless `web_search` provider for DeepSeek Harness. It queries DuckDuckGo and
 falls back to Bing when DuckDuckGo is blocked or rate-limited. No API key,
@@ -25,7 +25,7 @@ Add the provider to `$DSH_HOME/profiles/<profile>/cordis.patch.yml`:
 
 - insert:
     - id: web-search-ddg
-      name: 'dsh-web-tools'
+      name: '@residenthiago/dsh-web-tools'
       config:
         engine: auto
         maxResults: 8

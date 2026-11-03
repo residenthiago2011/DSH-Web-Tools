@@ -61,7 +61,7 @@ in your patch and is kept so existing patches keep working.
 
 ## Plugin panel (0.2.1-rc.3+)
 
-> **2.0.0** is the rename release — the package is `dsh-web-tools`
+> **2.0.0** is the rename release — the package is `@residenthiago/dsh-web-tools`
 > (previously `dsh-plugin-ddg-search`[`dsh-0.1`](https://github.com/tonyd2wild/DeepSeek-Harness-Web-Tools/tree/dsh-0.1)). Update profile manifests
 > accordingly: the dependency key, `dsh.profile.bundles` entry and the
 > bundle row's `name:`; the loader row id stays `web-search-ddg`.
@@ -70,7 +70,7 @@ On dsh 0.2.1-rc.3+ the plugin is a **bundle** (`dsh.bundle.patch` in its
 `package.json`), so the Plugins panel lists it under **Personal** as
 **"Web Tools"** (zh: Web 工具; display name from `plugin/locale/en|zh.json`,
 `meta.title`) with the standard enable/disable toggle — enabled it writes
-`"dsh-web-tools"` into the profile manifest's
+`"@residenthiago/dsh-web-tools"` into the profile manifest's
 `dsh.profile.bundles`. In that flow the `- insert: id: web-search-ddg` row
 comes from the bundle's own `cordis.patch.yml`; do **not** also copy that row
 into the profile patch (duplicate ids conflict). The `- id: web` row from
@@ -103,7 +103,7 @@ the file of every profile from step 1 (full commented copy:
 
 - insert:
     - id: web-search-ddg
-      name: 'dsh-web-tools'
+      name: '@residenthiago/dsh-web-tools'
       config:
         engine: auto
         maxResults: 8
@@ -171,7 +171,7 @@ The plugin takes these options:
 
 ```yaml
 - id: web-search-ddg
-  name: 'dsh-web-tools'
+  name: '@residenthiago/dsh-web-tools'
   config:
     engine: auto
     maxResults: 8
