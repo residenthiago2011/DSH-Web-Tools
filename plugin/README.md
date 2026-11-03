@@ -1,4 +1,4 @@
-# @residenthiago/dsh-web-tools
+# DeepSeek Harness - Web Tools
 
 Keyless `web_search` provider for DeepSeek Harness. It queries DuckDuckGo and
 falls back to Bing when DuckDuckGo is blocked or rate-limited. No API key,
