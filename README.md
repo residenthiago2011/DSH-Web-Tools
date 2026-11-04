@@ -80,6 +80,15 @@ step 2 is still yours to keep — it belongs to the web seam, not this package.
 
 ### 1. The plugin, per profile
 
+The easiest path is a tarball release through the Plugins panel (**Plugins →
+Add plugin** → paste
+`https://github.com/residenthiago2011/DSH-Web-Tools/releases/download/v2.0.0/residenthiago-dsh-web-tools-2.0.0.tgz`
+— see the
+[Releases page](https://github.com/residenthiago2011/DSH-Web-Tools/releases)
+for the newest tag). The panel records the install in the profile manifest,
+and the bundle patch rows below are then composed automatically. Manual local
+install:
+
 Plugins resolve from the **profile** directory, so install into each profile you
 use. `web` is the browser UI, `desktop` is DeepSeek's desktop app, `headless` is
 one-shot `dsh headless "task"` runs:

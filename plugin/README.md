@@ -11,6 +11,23 @@ of returning junk.
 
 ## Install
 
+### From a GitHub Release (plugin panel / tarball URL)
+
+DeepSeek Harness → **Plugins** → **Add plugin** → Registry: **Official npm
+registry** → paste:
+
+```text
+https://github.com/residenthiago2011/DSH-Web-Tools/releases/download/v2.0.0/residenthiago-dsh-web-tools-2.0.0.tgz
+```
+
+Pick the newest tag from the
+[Releases page](https://github.com/residenthiago2011/DSH-Web-Tools/releases);
+each release also carries a `SHA256SUMS.txt` for `sha256sum -c`. To remove the
+plugin later, open its card → **Uninstall** (the profile must run with HMR
+enabled for the panel uninstall; otherwise use `dsh plugin remove`).
+
+### From a local checkout
+
 ```sh
 dsh plugin --profile web add link:/absolute/path/to/DSH-Web-Tools/plugin
 ```
