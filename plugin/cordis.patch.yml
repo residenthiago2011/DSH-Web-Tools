@@ -15,7 +15,7 @@
 # ids across layers conflict.
 - insert:
     - id: web-search-ddg
-      name: 'dsh-plugin-ddg-search'
+      name: '@residenthiago/dsh-web-tools'
       config:
         engine: auto
         maxResults: 8
